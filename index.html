@@ -1,0 +1,1137 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Betty の東京逛街地圖</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;700&family=DM+Serif+Display:ital@0;1&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --cream: #F5F0E8;
+    --ink: #1a1a1a;
+    --dust: #C8B89A;
+    --blush: #E8C4B0;
+    --sage: #8FAF8A;
+    --rust: #C4614A;
+    --sky: #7BA3B8;
+    --lavender: #9B8FB8;
+    --charcoal: #3D3D3D;
+    --pale: #FAF8F4;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--cream);
+    color: var(--ink);
+    font-family: 'Noto Sans TC', sans-serif;
+    font-weight: 300;
+    line-height: 1.6;
+  }
+
+  header {
+    background: var(--ink);
+    color: var(--cream);
+    padding: 48px 40px 36px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  header::before {
+    content: '';
+    position: absolute;
+    right: -60px; top: -60px;
+    width: 280px; height: 280px;
+    border: 2px solid rgba(245,240,232,0.08);
+    border-radius: 50%;
+  }
+  header::after {
+    content: '';
+    position: absolute;
+    right: -20px; top: -20px;
+    width: 180px; height: 180px;
+    border: 1px solid rgba(245,240,232,0.12);
+    border-radius: 50%;
+  }
+
+  .header-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    color: var(--dust);
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+
+  h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(28px, 5vw, 46px);
+    font-weight: 400;
+    line-height: 1.15;
+    margin-bottom: 12px;
+  }
+
+  h1 em {
+    font-style: italic;
+    color: var(--blush);
+  }
+
+  .header-meta {
+    font-size: 13px;
+    color: #888;
+    font-family: 'Space Mono', monospace;
+    letter-spacing: 0.05em;
+  }
+
+  .legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    padding: 20px 40px;
+    background: var(--pale);
+    border-bottom: 1px solid var(--dust);
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    font-family: 'Space Mono', monospace;
+    color: var(--charcoal);
+  }
+
+  .dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .progress-bar {
+    background: var(--ink);
+    padding: 16px 40px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    flex-wrap: wrap;
+  }
+
+  .progress-text {
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    color: var(--cream);
+    letter-spacing: 0.05em;
+  }
+
+  .progress-count {
+    font-family: 'DM Serif Display', serif;
+    font-size: 22px;
+    color: var(--blush);
+  }
+
+  .visited-bar {
+    flex: 1;
+    height: 4px;
+    background: rgba(255,255,255,0.15);
+    border-radius: 2px;
+    min-width: 100px;
+    max-width: 300px;
+  }
+
+  .visited-fill {
+    height: 100%;
+    background: var(--sage);
+    border-radius: 2px;
+    width: 0%;
+    transition: width 0.4s ease;
+  }
+
+  .container {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 40px 24px;
+  }
+
+  .intro-note {
+    background: var(--ink);
+    color: var(--cream);
+    border-radius: 4px;
+    padding: 20px 24px;
+    margin-bottom: 40px;
+    font-size: 13px;
+    line-height: 1.8;
+  }
+
+  .intro-note strong {
+    color: var(--blush);
+    font-weight: 700;
+  }
+
+  /* District cards */
+  .district {
+    margin-bottom: 48px;
+  }
+
+  .district-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 4px;
+  }
+
+  .district-day {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    padding: 4px 10px;
+    border-radius: 2px;
+    color: var(--cream);
+  }
+
+  .district-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 26px;
+    font-weight: 400;
+  }
+
+  .district-subtitle {
+    font-size: 12px;
+    color: #888;
+    margin-bottom: 20px;
+    font-family: 'Space Mono', monospace;
+    margin-left: 2px;
+  }
+
+  .shop-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 12px;
+  }
+
+  .shop-card {
+    background: white;
+    border-radius: 6px;
+    padding: 16px 18px;
+    border: 1.5px solid transparent;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .shop-card:hover {
+    border-color: var(--dust);
+    box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+    transform: translateY(-1px);
+  }
+
+  .shop-card.visited {
+    background: #F0F7EF;
+    border-color: var(--sage) !important;
+  }
+
+  .shop-card.visited::after {
+    content: '✓';
+    position: absolute;
+    top: 12px; right: 14px;
+    font-size: 14px;
+    color: var(--sage);
+    font-weight: 700;
+  }
+
+  .shop-card-top {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    margin-bottom: 8px;
+  }
+
+  .shop-type-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    margin-top: 6px;
+    flex-shrink: 0;
+  }
+
+  .shop-name {
+    font-size: 15px;
+    font-weight: 700;
+    line-height: 1.3;
+    flex: 1;
+  }
+
+  .shop-name-en {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: #999;
+    margin-bottom: 6px;
+  }
+
+  .shop-address {
+    font-size: 11.5px;
+    color: #666;
+    margin-bottom: 6px;
+    line-height: 1.5;
+  }
+
+  .shop-address a {
+    color: inherit;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+
+  .tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    margin-top: 6px;
+  }
+
+  .tag {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    padding: 2px 7px;
+    border-radius: 2px;
+    background: var(--cream);
+    color: var(--charcoal);
+    letter-spacing: 0.03em;
+  }
+
+  .tag.flagship { background: var(--rust); color: white; }
+  .tag.exclusive { background: var(--lavender); color: white; }
+  .tag.fragrance { background: var(--sky); color: white; }
+  .tag.vintage { background: var(--sage); color: white; }
+  .tag.anchor { background: var(--ink); color: var(--cream); }
+
+  .shop-note {
+    font-size: 11.5px;
+    color: #888;
+    margin-top: 6px;
+    padding-top: 6px;
+    border-top: 1px solid #f0f0f0;
+    font-style: italic;
+    line-height: 1.5;
+  }
+
+  .district-divider {
+    height: 1px;
+    background: linear-gradient(to right, var(--dust), transparent);
+    margin: 8px 0 20px;
+  }
+
+  /* Route tip */
+  .route-tip {
+    background: var(--cream);
+    border: 1.5px solid var(--dust);
+    border-radius: 6px;
+    padding: 14px 18px;
+    margin-top: 16px;
+    font-size: 12.5px;
+    color: var(--charcoal);
+    line-height: 1.7;
+  }
+
+  .route-tip strong {
+    font-weight: 700;
+    color: var(--ink);
+  }
+
+  /* Summary section */
+  .summary-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 16px;
+    font-size: 13px;
+  }
+
+  .summary-table th {
+    background: var(--ink);
+    color: var(--cream);
+    padding: 10px 14px;
+    text-align: left;
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    font-weight: 400;
+  }
+
+  .summary-table td {
+    padding: 10px 14px;
+    border-bottom: 1px solid #eee;
+    vertical-align: top;
+  }
+
+  .summary-table tr:nth-child(even) td {
+    background: var(--pale);
+  }
+
+  .summary-table td:first-child {
+    font-weight: 700;
+    white-space: nowrap;
+  }
+
+  footer {
+    text-align: center;
+    padding: 32px;
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: #bbb;
+    border-top: 1px solid #eee;
+    margin-top: 40px;
+  }
+
+  @media (max-width: 600px) {
+    header { padding: 32px 20px 24px; }
+    .legend { padding: 14px 20px; }
+    .progress-bar { padding: 14px 20px; }
+    .container { padding: 24px 16px; }
+    .shop-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-label">Tokyo Shopping Guide — 2024/2025</div>
+  <h1>Betty の<em>東京</em>逛街清單</h1>
+  <div class="header-meta">35 家店舖 · 按地區路線整理</div>
+</header>
+
+<div class="progress-bar">
+  <span class="progress-text">逛街進度</span>
+  <span class="progress-count" id="visitedCount">0</span>
+  <span class="progress-text">/ 35</span>
+  <div class="visited-bar">
+    <div class="visited-fill" id="visitedFill"></div>
+  </div>
+  <span class="progress-text" id="visitedPct">0%</span>
+</div>
+
+<div class="legend">
+  <div class="legend-item"><div class="dot" style="background:#C4614A"></div> 旗艦店 / 唯一門市</div>
+  <div class="legend-item"><div class="dot" style="background:#9B8FB8"></div> 限定商品</div>
+  <div class="legend-item"><div class="dot" style="background:#7BA3B8"></div> 香水 / 美妝</div>
+  <div class="legend-item"><div class="dot" style="background:#8FAF8A"></div> 古著 / 二手</div>
+  <div class="legend-item"><div class="dot" style="background:#C8B89A"></div> 一般選品</div>
+  <div class="legend-item">→ 點選卡片打勾</div>
+</div>
+
+<div class="container">
+
+  <div class="intro-note">
+    研究後建議分為 <strong>3 天</strong> 逛街。原宿 + 表參道 + 南青山一帶最密集，可排整天；澀谷可併入同日或單獨半天；新宿一帶建議傍晚前往。<br>
+    🆕 新增：<strong>Laforet 原宿</strong>（含 GR8 → AFB stockist）、<strong>Shury Tokyo 古著</strong>（Cat Street）、<strong>AFB 選品店 GR8 / PULP / H4LO</strong>（全在原宿步行範圍）、<strong>kotohayokozawa stockist：SHEEP + CONZ WOMENS</strong>（已加入 Day 1）。<br>
+    ⚠️ <strong>「New Women 新宿」</strong>在查詢後推測指的是 <strong>NEWoMan 新宿</strong>（ニュウマン新宿）這棟商場，Aiam 香水就在其中；若你指的是另一個品牌請告知。
+  </div>
+
+  <!-- ===== DAY 1: HARAJUKU / OMOTESANDO / MINAMI-AOYAMA ===== -->
+  <div class="district">
+    <div class="district-header">
+      <div class="district-day" style="background:#C4614A">Day 1</div>
+      <div class="district-title">原宿 · 表參道 · 南青山</div>
+    </div>
+    <div class="district-subtitle">★ 最密集！超過 15 家店在步行範圍內 · 建議一整天</div>
+    <div class="district-divider"></div>
+
+    <div class="shop-grid">
+
+      <div class="shop-card" onclick="toggleVisit(this)">
+        <div class="shop-card-top">
+          <div class="shop-type-dot" style="background:#C4614A"></div>
+          <div>
+            <div class="shop-name">BEAMS 一條街（原宿）</div>
+            <div class="shop-name-en">Beams Harajuku — Multiple stores on one street</div>
+          </div>
+        </div>
+        <div class="shop-address">
+          <a href="https://maps.google.com/?q=BEAMS+Harajuku+3+Jingumae+Shibuya" target="_blank">神宮前 3 丁目一帶 — 明治通り × 原宿駅周辺</a>
+        </div>
+        <div class="tags">
+          <span class="tag flagship">旗艦</span>
+          <span class="tag">男裝 / 選品</span>
+        </div>
+        <div class="shop-note">原宿店是 BEAMS 創始之地（1976），男裝 casual 旗艦。同街有 International Gallery BEAMS、BEAMS BOY、Future Archive 等多間 —— 一次逛完生態系。💡 RAY BEAMS 也是 <strong>Foundry Mews</strong> 鞋款的東京 stockist，記得確認當季有無貨。</div>
+      </div>
+
+      <!-- ★ NEW: Laforet -->
+      <div class="shop-card" onclick="toggleVisit(this)">
+        <div class="shop-card-top">
+          <div class="shop-type-dot" style="background:#C4614A"></div>
+          <div>
+            <div class="shop-name">Laforet 原宿</div>
+            <div class="shop-name-en">Laforet Harajuku — Multi-brand fashion building</div>
+          </div>
+        </div>
+        <div class="shop-address">
+          <a href="https://maps.google.com/?q=Laforet+Harajuku+1-11-6+Jingumae+Shibuya" target="_blank">神宮前 1-11-6（明治神宮前駅 3 分 / 原宿駅 5 分）</a>
+        </div>
+        <div class="tags">
+          <span class="tag anchor">Day 1 起點</span>
+          <span class="tag">複合館 / 150 店</span>
+        </div>
+        <div class="shop-note">原宿最具代表性的時尚大樓。一次可解決：Sheep（1F）、miffy style、GR8/AFB（2.5F）、kotohayokozawa（透過 Sheep 1F）。建議以 Laforet 作為 Day 1 的第一站。</div>
+      </div>
+
+      <!-- ★ NEW: AFB via GR8 (inside Laforet) -->
+      <div class="shop-card" onclick="toggleVisit(this)">
+        <div class="shop-card-top">
+          <div class="shop-type-dot" style="background:#9B8FB8"></div>
+          <div>
+            <div class="shop-name">AFB → GR8（Laforet 2.5F）</div>
+            <div class="shop-name-en">AFB stockist: GR8 — 2.5F Laforet Harajuku</div>
+          </div>
+        </div>
+        <div class="shop-address">
+          <a href="https://maps.google.com/?q=GR8+Laforet+Harajuku+1-11-6+Jingumae" target="_blank">神宮前 1-11-6 Laforet Harajuku 2.5F（AFB 東京 stockist 之一）</a>
+        </div>
+        <div class="tags">
+          <span class="tag exclusive">AFB 選品</span>
+          <span class="tag">Laforet 内</span>
+        </div>
+        <div class="shop-note">AFB 沒有自己的直營店，東京授權 stockist 有三家，GR8 就在 Laforet 內，逛 Sheep / miffy 時順路一起去最省事。另兩家 PULP（神宮前 6-19-20）、H4LO（神宮前 3-34-8）也都在原宿。</div>
+      </div>
+
+      <!-- ★ NEW: kotohayokozawa via CONZ WOMENS -->
+      <div class="shop-card" onclick="toggleVisit(this)">
+        <div class="shop-card-top">
+          <div class="shop-type-dot" style="background:#9B8FB8"></div>
+          <div>
+            <div class="shop-name">kotohayokozawa → CONZ WOMENS</div>
+            <div class="shop-name-en">kotohayokozawa stockist: CONZ WOMENS — Cat Street</div>
+          </div>
+        </div>
+        <div class="shop-address">
+          <a href="https://maps.google.com/?q=4-26-28+Jingumae+Shibuya+SUPACAZ+building" target="_blank">神宮前 4-26-28 SUPACAZ bldg 1-2F（Cat Street 附近、Tel: 03-6271-4566）</a>
+        </div>
+        <div class="tags">
+          <span class="tag exclusive">kotohayokozawa</span>
+          <span class="tag">女裝選品</span>
+        </div>
+        <div class="shop-note">kotohayokozawa 東京 stockist，從 Laforet 往 Kiko Kostadinov 方向走時正好路過。澀谷 PARCO 4F 也有一家 CONZ WOMENS。</div>
+      </div>
+
+      <!-- ★ NEW: Shury Tokyo -->
+      <div class="shop-card" onclick="toggleVisit(this)">
+        <div class="shop-card-top">
+          <div class="shop-type-dot" style="background:#8FAF8A"></div>
+          <div>
+            <div class="shop-name">Shury Tokyo 古著</div>
+            <div class="shop-name-en">Shury — Cat Street backstreet vintage</div>
+          </div>
+        </div>
+        <div class="shop-address">
+          <a href="https://maps.google.com/?q=Shury+6-8-6+Jingumae+Shibuya+Tokyo" target="_blank">神宮前 6-8-6 2F（Cat Street 裏路地、Open 12:00-20:00、Tel: 03-6427-9144）</a>
+        </div>
+        <div class="tags">
+          <span class="tag vintage">古著</span>
+          <span class="tag">原創 Labyrins</span>
+        </div>
+        <div class="shop-note">Cat Street 巷弄裡的個性古著店，年代不限，以直覺選品為主，內設原創品牌 Labyrins（手作針織）。位置在 Kindal 原宿附近，可以連逛。</div>
+      </div>
+
+      <div class="shop-card" onclick="toggleVisit(this)">
+        <div class="shop-card-top">
+          <div class="shop-type-dot" style="background:#C4614A"></div>
+          <div>
+            <div class="shop-name">Miffy Style 原宿</div>
+            <div class="shop-name-en">miffy style harajuku</div>
+          </div>
+        </div>
+        <div class="shop-address">
+          <a href="https://maps.google.com/?q=miffy+style+harajuku+tokyo" target="_blank">神宮前 1-11-6 ラフォーレ原宿内（Laforet Harajuku）</a>
+        </div>
+        <div class="tags">
+          <span class="tag">生活雜貨 / 角色</span>
+        </div>
+        <div class="shop-note">Laforet 原宿館內，可搭配 SHEEP 一起逛。</div>
+      </div>
+
+      <div class="shop-card" onclick="toggleVisit(this)">
+        <div class="shop-card-top">
+          <div class="shop-type-dot" style="background:#C4614A"></div>
+          <div>
+            <div class="shop-name">Sheep</div>
+            <div class="shop-name-en">SHEEP — Laforet Harajuku 1F</div>
+          </div>
+        </div>
+        <div class="shop-address">
+          <a href="https://maps.google.com/?q=Sheep+Laforet+Harajuku+1-11-6+Jingumae" target="_blank">神宮前 1-11-6 ラフォーレ原宿 1F</a>
+        </div>
+        <div class="tags">
+          <span class="tag">女裝 / 男裝</span>
+        </div>
+        <div class="shop-note">Laforet 原宿 1F，原宿風格選品。miffy style 也在同棟，一起逛。</div>
+      </div>
+
+      <div class="shop-card" onclick="toggleVisit(this)">
+        <div class="shop-card-top">
+          <div class="shop-type-dot" style="background:#C8B89A"></div>
+          <div>
+            <div class="shop-name">@cosme 原宿</div>
+            <div class="shop-name-en">@cosme store Harajuku</div>
+          </div>
+        </div>
+        <div class="shop-address">
+          <a href="https://maps.google.com/?q=1-14-27+Jingumae+Shibuya+cosme+TOKYO" target="_blank">神宮前 1-14-27 WITH HARAJUKU（JR 原宿駅 徒步 1 分・Open 11:00-21:00）</a>
+        </div>
+        <div class="tags">
+          <span class="tag fragrance">美妝</span>
+          <span class="tag flagship">旗艦</span>
+        </div>
+        <div class="shop-note">日本最大美妝評論平台旗艦店，2025/3 翻新後新增 3F 香水專區。JR 原宿駅正對面，非 Harakado 棟。約 600 品牌、2 萬商品。</div>
+      </div>
+
+      <div class="shop-card" onclick="toggleVisit(this)">
+        <div class="shop-card-top">
+          <div class="shop-type-dot" style="background:#C8B89A"></div>
+          <div>
+            <div class="shop-name">Converse Tokyo</div>
+            <div class="shop-name-en">Converse Tokyo — Harajuku exclusive</div>
+          </div>
+        </div>
+        <div class="shop-address">
+          <a href="https://maps.google.com/?q=Converse+Tokyo+6-16-5+Jingumae+Shibuya" target="_blank">神宮前 6-16-5 HOLON III（明治通り沿い）</a>
+        </div>
+        <div class="tags">
+          <span class="tag exclusive">限定款</span>
+          <span class="tag flagship">旗艦</span>
+        </div>
+        <div class="shop-note">原宿限定款 All Star 素體＋in-store 客製化服務，純白 All Star 僅此一家。</div>
+      </div>
+
+      <div class="shop-card" onclick="toggleVisit(this)">
+        <div class="shop-card-top">
+          <div class="shop-type-dot" style="background:#C4614A"></div>
+          <div>
+            <div class="shop-name">Kinetics</div>
+            <div class="shop-name-en">Kinetics Harajuku — Skatewear & Sneakers</div>
+          </div>
+        </div>
+        <div class="shop-address">
+          <a href="https://maps.google.com/?q=Kinetics+1-12-7+Jingumae+Shibuya" target="_blank">神宮前 1-12-7 神宮前藤木ビル（明治神宮前駅 1 分）</a>
+        </div>
+        <div class="tags">
+          <span class="tag">Skate / 球鞋</span>
+          <span class="tag flagship">旗艦</span>
+        </div>
+        <div class="shop-note">2023 年翻新擴大，現為 3 層樓約 190 坪，原宿唯一旗艦。Wack Wack 聯名常駐。</div>
+      </div>
+
+      <div class="shop-card" onclick="toggleVisit(this)">
+        <div class="shop-card-top">
+          <div class="shop-type-dot" style="background:#C4614A"></div>
+          <div>
+            <div class="shop-name">The North Face（原宿群）</div>
+            <div class="shop-name-en">The North Face — 6 stores on Meiji Dori</div>
+          </div>
+        </div>
+        <div class="shop-address">
+          <a href="https://maps.google.com/?q=The+North+Face+Standard+Harajuku+Meiji+Dori" target="_blank">明治通り沿い、神宮前 1〜6 丁目 — 6 家不同主題店</a>
+        </div>
+        <div class="tags">
+          <span class="tag">Mountain / Standard / Alter / Sphere</span>
+        </div>
+        <div class="shop-note">原宿明治通り上有 6 家各有主題：Mountain（高端登山）、Standard（日常）、Sphere（永續）、Alter、Purple Label、Kids。推薦先去 Mountain 旗艦。</div>
+      </div>
+
+      <div class="shop-card" onclick="toggleVisit(this)">
+        <div class="shop-card-top">
+          <div class="shop-type-dot" style="background:#C4614A"></div>
+          <div>
+            <div class="shop-name">Kiko Kostadinov Tokyo</div>
+            <div class="shop-name-en">Kiko Kostadinov — Only physical store (worldwide)</div>
+          </div>
+        </div>
+        <div class="shop-address">
+          <a href="https://maps.google.com/?q=Kiko+Kostadinov+2-32-3+Jingumae+Shibuya" target="_blank">神宮前 2-32-3（原宿 Cat Street 附近，明治神宮前駅步行）</a>
+        </div>
+        <div class="tags">
+          <span class="tag flagship">全球唯一實體店</span>
+          <span class="tag exclusive">限定款</span>
+        </div>
+        <div class="shop-note">品牌全球第一間實體店，選東京開幕。Salon + 藝術裝置空間並存，ASICS 聯名常有。</div>
+      </div>
+
+      <div class="shop-card" onclick="toggleVisit(this)">
+        <div class="shop-card-top">
+          <div class="shop-type-dot" style="background:#C4614A"></div>
+          <div>
+            <div class="shop-name">Common Gull Products 原宿旗艦</div>
+            <div class="shop-name-en">Common Gull Products — Harajuku Flagship</div>
+          </div>
+        </div>
+        <div class="shop-address">
+          <a href="https://maps.google.com/?q=Common+Gull+Products+3-15-9+Jingumae+Shibuya" target="_blank">神宮前 3-15-9 CREST 表參道 103（2025.11 開幕）</a>
+        </div>
+        <div class="tags">
+          <span class="tag flagship">旗艦</span>
+          <span class="tag">女裝 / 生活</span>
+        </div>
+        <div class="shop-note">2025 年 11 月新開幕的東京旗艦，店內設計如「家」一般的溫馨空間，可以帶寵物一起逛。</div>
+      </div>
+
+      <div class="shop-card" onclick="toggleVisit(this)">
+        <div class="shop-card-top">
+          <div class="shop-type-dot" style="background:#C8B89A"></div>
+          <div>
+            <div class="shop-name">Kindal 原宿店</div>
+            <div class="shop-name-en">Kindal Harajuku — Cat Street Vintage</div>
+          </div>
+        </div>
+        <div class="shop-address">
+          <a href="https://maps.google.com/?q=Kindal+Harajuku+6-7-10+Jingumae" target="_blank">神宮前 6-7-10 ネスト原宿 VII 201 号（Cat Street）</a>
+        </div>
+        <div class="tags">
+          <span class="tag vintage">古著</span>
+          <span class="tag">設計師品牌</span>
+        </div>
+        <div class="shop-note">Cat Street 上，精選二手設計師品牌（Undercover、sacai 等日牌為主），乾淨整齊。澀谷亦有分店但原宿這間更適合日牌愛好者。</div>
+      </div>
+
+      <div class="shop-card" onclick="toggleVisit(this)">
+        <div class="shop-card-top">
+          <div class="shop-type-dot" style="background:#7BA3B8"></div>
+          <div>
+            <div class="shop-name">Yubune 香水（原宿 / 表參道）</div>
+            <div class="shop-name-en">YUBUNE — Harakado 2F, Omotesando</div>
+          </div>
+        </div>
+        <div class="shop-address">
+          <a href="https://maps.google.com/?q=Yubune+Harakado+1-2-13+Jingumae+Harajuku" target="_blank">神宮前 1-2-13 東急プラザ原宿「ハラカド」2F（明治神宮前駅直結）</a>
+        </div>
+        <div class="tags">
+          <span class="tag fragrance">香水</span>
+          <span class="tag">日本製 / 限定品</span>
+        </div>
+        <div class="shop-note">日本職人調香，8 款 Parfum 濃度，靈感來自日本各地風景。Harakado 限定香水有售。可刻印服務，適合買來當伴手禮。💡 Sholayered も同棟 2F！</div>
+      </div>
+
+      <div class="shop-card" onclick="toggleVisit(this)">
+        <div class="shop-card-top">
+          <div class="shop-type-dot" style="background:#C8B89A"></div>
+          <div>
+            <div class="shop-name">Studious Tokyo（表參道旗艦）</div>
+            <div class="shop-name-en">STUDIOUS TOKYO Global Flagship — Omotesando</div>
+          </div>
+        </div>
+        <div class="shop-address">
+          <a href="https://maps.google.com/?q=Studious+Tokyo+4-28-6+Jingumae+Shibuya" target="_blank">神宮前 4-28-6（表參道，1-2F）Tel: 03-6804-6546</a>
+        </div>
+        <div class="tags">
+          <span class="tag flagship">全球旗艦</span>
+          <span class="tag">日本品牌選品</span>
+        </div>
+        <div class="shop-note">外牆如金屏風，內有茶室試衣間。首個全球旗艦，引進 KOLOR、CFCL、JULIUS 等一線日牌。旁邊有 Good Edition 文化選物店。</div>
+      </div>
+
+      <div class="shop-card" onclick="toggleVisit(this)">
+        <div class="shop-card-top">
+          <div class="shop-type-dot" style="background:#C4614A"></div>
+          <div>
+            <div class="shop-name">Issey Miyake Me（南青山）</div>
+            <div class="shop-name-en">me ISSEY MIYAKE — Minami Aoyama</div>
+          </div>
+        </div>
+        <div class="shop-address">
+          <a href="https://maps.google.com/?q=me+Issey+Miyake+Minami+Aoyama+Tokyo" target="_blank">南青山（表參道駅 A4 出口附近，青山エリア）</a>
+        </div>
+        <div class="tags">
+          <span class="tag">女裝副線</span>
+          <span class="tag flagship">旗艦</span>
+        </div>
+        <div class="shop-note">青山一帶有多家 Issey Miyake 副線門市，me 線、Pleats Please、Homme Plissé、Reality Lab 都在步行距離。Ginza 有最大旗艦。</div>
+      </div>
+
+      <div class="shop-card" onclick="toggleVisit(this)">
+        <div class="shop-card-top">
+          <div class="shop-type-dot" style="background:#C4614A"></div>
+          <div>
+            <div class="shop-name">PERVERZE（南青山旗艦）</div>
+            <div class="shop-name-en">PERVERZE THE EMBODIMENT STORE</div>
+          </div>
+        </div>
+        <div class="shop-address">
+          <a href="https://maps.google.com/?q=Perverze+5-5-1+Minami-Aoyama+Minato+Tokyo" target="_blank">南青山 5-5-1（表參道駅 A5 出口, Tel: +81 3-6451-1555）</a>
+        </div>
+        <div class="tags">
+          <span class="tag flagship">唯一實體店</span>
+          <span class="tag">街頭 / 80-90s</span>
+        </div>
+        <div class="shop-note">2022 年開幕的品牌第一間實體店，以 80-90s 倫敦巴黎街頭攝影雜誌為核心，可動式陳設每次去都不一樣。澀谷 PARCO 3F 也有上架。</div>
+      </div>
+
+      <div class="shop-card" onclick="toggleVisit(this)">
+        <div class="shop-card-top">
+          <div class="shop-type-dot" style="background:#C4614A"></div>
+          <div>
+            <div class="shop-name">Maison Special（南青山）</div>
+            <div class="shop-name-en">MAISON SPECIAL — Minami Aoyama</div>
+          </div>
+        </div>
+        <div class="shop-address">
+          <a href="https://maps.google.com/?q=Maison+Special+5-4-41+Minami+Aoyama+Minato+Tokyo" target="_blank">南青山 5-4-41（Open: 12:00-20:00）</a>
+        </div>
+        <div class="tags">
+          <span class="tag flagship">旗艦</span>
+          <span class="tag">女裝 / 男裝</span>
+        </div>
+        <div class="shop-note">旗艦位於南青山，精緻日本設計師風格。與 PERVERZE 店距離很近，可連逛。</div>
+      </div>
+
+      <div class="shop-card" onclick="toggleVisit(this)">
+        <div class="shop-card-top">
+          <div class="shop-type-dot" style="background:#C4614A"></div>
+          <div>
+            <div class="shop-name">RetaW（原宿旗艦）</div>
+            <div class="shop-name-en">retaW store HARAJUKU — Fragrance & Lifestyle</div>
+          </div>
+        </div>
+        <div class="shop-address">
+          <a href="https://maps.google.com/?q=retaW+4-28-12+Jingumae+Shibuya+Tokyo" target="_blank">神宮前 4-28-12 ジャスト原宿 1F（Open 12:00-19:30・Tel: 03-6804-5470）</a>
+        </div>
+        <div class="tags">
+          <span class="tag fragrance">香水 / 生活</span>
+          <span class="tag flagship">旗艦</span>
+        </div>
+        <div class="shop-note">藤原浩 × 香氛品牌，2023/10 已搬遷至新址（原址 4-26-22 已不適用）。新店更寬敞，距原址僅 20 公尺。極簡空間，香皂、香水、蠟燭⋯⋯男女皆宜。</div>
+      </div>
+
+    </div>
+
+    <div class="route-tip">
+      <strong>Day 1 路線建議：</strong>明治神宮前駅 → <strong>Laforet（Sheep 1F · kotohayokozawa ✓ + GR8/AFB 2.5F + miffy）</strong> → @cosme 原宿 → Converse Tokyo → Kinetics → BEAMS 一條街 → North Face 群 → Common Gull Products → Kindal 原宿 → <strong>Shury Tokyo 古著</strong>（Cat Street 裏路地）→ <strong>CONZ WOMENS</strong>（kotohayokozawa ✓）→ Kiko Kostadinov → Studious Tokyo → Yubune（Harakado）→ 表參道方向：retaW → Issey Miyake me → Maison Special → PERVERZE。
+    </div>
+  </div>
+
+  <!-- ===== DAY 2: SHIBUYA ===== -->
+  <div class="district">
+    <div class="district-header">
+      <div class="district-day" style="background:#7BA3B8">Day 2</div>
+      <div class="district-title">澀谷 · 代官山 · 西麻布</div>
+    </div>
+    <div class="district-subtitle">約半天〜一天 · 可跟 Day 1 下午合併</div>
+    <div class="district-divider"></div>
+
+    <div class="shop-grid">
+
+      <div class="shop-card" onclick="toggleVisit(this)">
+        <div class="shop-card-top">
+          <div class="shop-type-dot" style="background:#C8B89A"></div>
+          <div>
+            <div class="shop-name">Parco 澀谷</div>
+            <div class="shop-name-en">Shibuya PARCO — Multiple brands inside</div>
+          </div>
+        </div>
+        <div class="shop-address">
+          <a href="https://maps.google.com/?q=Shibuya+PARCO+15-1+Udagawacho+Shibuya" target="_blank">宇田川町 15-1（澀谷駅 A6 出口 6 分）</a>
+        </div>
+        <div class="tags">
+          <span class="tag">複合商場</span>
+          <span class="tag">PERVERZE 也在 3F</span>
+        </div>
+        <div class="shop-note">2019 年全新翻修，PERVERZE（3F）、Issey Miyake Shibuya（B1）、各種日本設計師品牌、任天堂、寶可夢中心都在這棟。可以花半天。</div>
+      </div>
+
+      <div class="shop-card" onclick="toggleVisit(this)">
+        <div class="shop-card-top">
+          <div class="shop-type-dot" style="background:#8FAF8A"></div>
+          <div>
+            <div class="shop-name">Kindal 澀谷店</div>
+            <div class="shop-name-en">Kindal Shibuya — Multi-floor vintage flagship</div>
+          </div>
+        </div>
+        <div class="shop-address">
+          <a href="https://maps.google.com/?q=Kindal+Shibuya+29-8+Udagawacho" target="_blank">宇田川町 29-8 中村ビル 1F・3F・4F（澀谷 Center-Gai 附近）</a>
+        </div>
+        <div class="tags">
+          <span class="tag vintage">古著</span>
+          <span class="tag">輕奢品牌</span>
+        </div>
+        <div class="shop-note">澀谷店規模比原宿大，多樓層：1F 是 LV / Gucci 等輕奢，3F 是日本設計師品牌（sacai、AURALEE、UNDERCOVER）。兩家各有特色可分批去。</div>
+      </div>
+
+      <div class="shop-card" onclick="toggleVisit(this)">
+        <div class="shop-card-top">
+          <div class="shop-type-dot" style="background:#7BA3B8"></div>
+          <div>
+            <div class="shop-name">Sholayered（西麻布 新旗艦）</div>
+            <div class="shop-name-en">SHOLAYERED — Nishiazabu Flagship (2025 NEW)</div>
+          </div>
+        </div>
+        <div class="shop-address">
+          <a href="https://maps.google.com/?q=Sholayered+2-13-12+Nishiazabu+Minato+Tokyo" target="_blank">港区西麻布 2-13-12 早野ビル 1F（Open 13:00-21:00・日曜定休）</a>
+        </div>
+        <div class="tags">
+          <span class="tag fragrance">香水</span>
+          <span class="tag flagship">2025/5 新旗艦</span>
+        </div>
+        <div class="shop-note">2025/5/23 開幕，品牌史上最大旗艦。恵比寿本店（恵比寿西 1-16-2、Open 11:00-18:30）仍有 Café + 調香體驗，各有特色。💡 <strong>原宿 Harakado 2F 也有 Sholayered 分店</strong>，Day 1 路線上順逛最省力！</div>
+      </div>
+
+    </div>
+
+    <div class="route-tip">
+      <strong>Day 2 路線建議：</strong>澀谷駅 → Shibuya PARCO（PERVERZE 3F + Issey Miyake B1）→ Kindal 澀谷 → 西麻布 → Sholayered 西麻布新旗艦（Open 13:00）。若想體驗 Café + 調香，可改去恵比寿本店（恵比寿西 1-16-2、Open 11:00-18:30）。💡 原宿 Harakado 2F 也有 Sholayered，Day 1 可順帶一看。
+    </div>
+  </div>
+
+  <!-- ===== DAY 3: SHINJUKU ===== -->
+  <div class="district">
+    <div class="district-header">
+      <div class="district-day" style="background:#9B8FB8">Day 3</div>
+      <div class="district-title">新宿 · 歌舞伎町周邊</div>
+    </div>
+    <div class="district-subtitle">半天即可 · 建議傍晚開始</div>
+    <div class="district-divider"></div>
+
+    <div class="shop-grid">
+
+      <div class="shop-card" onclick="toggleVisit(this)">
+        <div class="shop-card-top">
+          <div class="shop-type-dot" style="background:#C4614A"></div>
+          <div>
+            <div class="shop-name">伊勢丹新宿</div>
+            <div class="shop-name-en">Isetan Shinjuku — Japan's #1 Department Store</div>
+          </div>
+        </div>
+        <div class="shop-address">
+          <a href="https://maps.google.com/?q=Isetan+Shinjuku+3-14-1+Shinjuku" target="_blank">新宿 3-14-1（新宿三丁目駅 B3/B4/B5 直結）</a>
+        </div>
+        <div class="tags">
+          <span class="tag flagship">日本最大百貨</span>
+          <span class="tag">多品牌</span>
+        </div>
+        <div class="shop-note">日本銷售額第一的百貨，Issey Miyake、Moussy、Goldy、Aiam、靴下屋等都在這棟或附近。1F 化妝品有日本獨家商品。外國旅客可辦 Guest Card 享 5% 折扣。</div>
+      </div>
+
+      <div class="shop-card" onclick="toggleVisit(this)">
+        <div class="shop-card-top">
+          <div class="shop-type-dot" style="background:#7BA3B8"></div>
+          <div>
+            <div class="shop-name">Aiam 香水（新宿 / 澀谷）</div>
+            <div class="shop-name-en">aíam — Multiple locations, Shinjuku best</div>
+          </div>
+        </div>
+        <div class="shop-address">
+          <a href="https://maps.google.com/?q=Aiam+Lumine+Est+Shinjuku" target="_blank">新宿ルミネエスト / 澀谷ヒカリエ ShinQs 1F（都内多店）</a>
+        </div>
+        <div class="tags">
+          <span class="tag fragrance">香水</span>
+          <span class="tag">多分店</span>
+        </div>
+        <div class="shop-note">2021 年創立的日本新銳香水品牌，以「私は、わたし」（I am me）為概念。全國 12 店，東京有新宿（ルミネエスト）、澀谷ヒカリエ、池袋 PARCO、南青山門市，前往新宿最方便。</div>
+      </div>
+
+      <div class="shop-card" onclick="toggleVisit(this)">
+        <div class="shop-card-top">
+          <div class="shop-type-dot" style="background:#C8B89A"></div>
+          <div>
+            <div class="shop-name">NEWoMan 新宿（New Women）</div>
+            <div class="shop-name-en">NEWoMan Shinjuku — Fashion complex at South Exit</div>
+          </div>
+        </div>
+        <div class="shop-address">
+          <a href="https://maps.google.com/?q=NEWoMan+Shinjuku+4-1-6+Shinjuku" target="_blank">新宿 4-1-6 JR 新宿ミライナタワー（新宿駅南口直結）</a>
+        </div>
+        <div class="tags">
+          <span class="tag">複合商場 / 女性時尚</span>
+        </div>
+        <div class="shop-note">以「new woman」為概念的選品商場，100+ 品牌，日本設計師品牌 + 生活選物為主，路線感更強。Aiam 也在新宿周邊。⚠️ 若 "New Women" 指的是另一個品牌請告知。</div>
+      </div>
+
+      <div class="shop-card" onclick="toggleVisit(this)">
+        <div class="shop-card-top">
+          <div class="shop-type-dot" style="background:#C4614A"></div>
+          <div>
+            <div class="shop-name">Loft 旗艦店（澀谷 / 新宿）</div>
+            <div class="shop-name-en">Loft — Shibuya or Shinjuku flagship</div>
+          </div>
+        </div>
+        <div class="shop-address">
+          <a href="https://maps.google.com/?q=Loft+Shibuya+21-1+Udagawacho" target="_blank">澀谷宇田川町 21-1 / 新宿も大規模店あり</a>
+        </div>
+        <div class="tags">
+          <span class="tag">文具 / 雜貨 / 美妝</span>
+        </div>
+        <div class="shop-note">澀谷 Loft 是東京最具代表性旗艦，超全品項。新宿 Loft 規模稍小但更方便新宿行程。</div>
+      </div>
+
+      <div class="shop-card" onclick="toggleVisit(this)">
+        <div class="shop-card-top">
+          <div class="shop-type-dot" style="background:#C8B89A"></div>
+          <div>
+            <div class="shop-name">靴下屋（Tabio）</div>
+            <div class="shop-name-en">Tabio / 靴下屋 — Multiple locations</div>
+          </div>
+        </div>
+        <div class="shop-address">
+          <a href="https://maps.google.com/?q=Tabio+Shinjuku+Tokyo" target="_blank">新宿・原宿・澀谷など多數（伊勢丹内にも）</a>
+        </div>
+        <div class="tags">
+          <span class="tag">襪子 / 腿套</span>
+        </div>
+        <div class="shop-note">日本品質襪子品牌，分佈很廣。原宿、新宿、澀谷都有。也可在伊勢丹内找到。逛百貨時順便入手即可。</div>
+      </div>
+
+      <div class="shop-card" onclick="toggleVisit(this)">
+        <div class="shop-card-top">
+          <div class="shop-type-dot" style="background:#C8B89A"></div>
+          <div>
+            <div class="shop-name">Moussy</div>
+            <div class="shop-name-en">MOUSSY — Harajuku flagship (The Shel'tter)</div>
+          </div>
+        </div>
+        <div class="shop-address">
+          <a href="https://maps.google.com/?q=The+Sheltter+Tokyu+Plaza+Omotesando+4-30-3+Jingumae" target="_blank">表參道：Tokyu Plaza Omotesando 4-30-3 / 伊勢丹新宿也有</a>
+        </div>
+        <div class="tags">
+          <span class="tag">女裝</span>
+          <span class="tag flagship">旗艦（The Shel'tter）</span>
+        </div>
+        <div class="shop-note">Baroque Japan Limited 旗下女裝品牌，旗艦在原宿 Tokyu Plaza Omotesando 的 The Shel'tter。新宿伊勢丹也有分店，逛路線時可安排。</div>
+      </div>
+
+      <div class="shop-card" onclick="toggleVisit(this)">
+        <div class="shop-card-top">
+          <div class="shop-type-dot" style="background:#C8B89A"></div>
+          <div>
+            <div class="shop-name">Goldy</div>
+            <div class="shop-name-en">GOLDY — Accessories, Lumine Est Shinjuku B2</div>
+          </div>
+        </div>
+        <div class="shop-address">
+          <a href="https://maps.google.com/?q=Goldy+Lumine+Est+Shinjuku+3-38-1+Shinjuku" target="_blank">新宿 3-38-1 ルミネエスト B2F（新宿駅直結）</a>
+        </div>
+        <div class="tags">
+          <span class="tag">飾品 / 配件</span>
+        </div>
+        <div class="shop-note">日本女性飾品品牌，新宿 Lumine Est B2、池袋等多處有店，價格親切、設計感強，逛新宿時很方便順道。</div>
+      </div>
+
+      <!-- ★ NEW: SORIN -->
+      <div class="shop-card" onclick="toggleVisit(this)">
+        <div class="shop-card-top">
+          <div class="shop-type-dot" style="background:#C8B89A"></div>
+          <div>
+            <div class="shop-name">SORIN（ルミネエスト新宿）</div>
+            <div class="shop-name-en">SORIN — Lumine Est Shinjuku B2F</div>
+          </div>
+        </div>
+        <div class="shop-address">
+          <a href="https://maps.google.com/?q=SORIN+Lumine+Est+Shinjuku+3-38-1" target="_blank">新宿 3-38-1 ルミネエスト新宿 B2F（Open 11:00-21:00）</a>
+        </div>
+        <div class="tags">
+          <span class="tag">女裝</span>
+          <span class="tag exclusive">Goldy 同層！</span>
+        </div>
+        <div class="shop-note">SNIDEL / Gelato Pique 系列母公司 Mash Style Lab 旗下新銳女裝品牌，「甜×銳」對比風格。與 Goldy 同在 ルミネエスト B2F，一次解決。池袋 PARCO B1F 是品牌 1 號旗艦（2025/6 開幕、限定品更多），若不嫌遠可改去旗艦。</div>
+      </div>
+
+      <!-- ★ NEW: ATTISESSION (Foundry Mews stockist) -->
+      <div class="shop-card" onclick="toggleVisit(this)">
+        <div class="shop-card-top">
+          <div class="shop-type-dot" style="background:#9B8FB8"></div>
+          <div>
+            <div class="shop-name">ATTISESSION → Foundry Mews</div>
+            <div class="shop-name-en">ATTISESSION Shinjuku — Foundry Mews stockist</div>
+          </div>
+        </div>
+        <div class="shop-address">
+          <a href="https://maps.google.com/?q=ATTISESSION+Lumine2+Shinjuku+3-38-2" target="_blank">新宿 3-38-2 ルミネ新宿 ルミネ 2 2F（Open 11:00-21:00）</a>
+        </div>
+        <div class="tags">
+          <span class="tag exclusive">Foundry Mews</span>
+          <span class="tag">United Arrows 新線</span>
+        </div>
+        <div class="shop-note">United Arrows 旗下新品牌，同時也是 Foundry Mews 鞋款的東京 stockist 之一。ルミネ 2（2F）與 ルミネエスト B2（Goldy + SORIN）步行 1 分鐘，Day 3 一起掃完超順。</div>
+      </div>
+
+      <div class="shop-card" onclick="toggleVisit(this)">
+        <div class="shop-card-top">
+          <div class="shop-type-dot" style="background:#C4614A"></div>
+          <div>
+            <div class="shop-name">The Four Eyed（歌舞伎町）</div>
+            <div class="shop-name-en">The Four Eyed — Kabukicho, Shinjuku</div>
+          </div>
+        </div>
+        <div class="shop-address">
+          <a href="https://maps.google.com/?q=The+Four+Eyed+2-8-2+Kabukicho+Shinjuku" target="_blank">歌舞伎町 2-8-2 パレドオール歌舞伎町ビル 1F（開 12:00-21:00）</a>
+        </div>
+        <div class="tags">
+          <span class="tag flagship">唯一實體店</span>
+          <span class="tag">前衛選品</span>
+        </div>
+        <div class="shop-note">藏在情趣旅館後面的前衛選品店，Charles Jeffrey、Y/Project、Martine Rose⋯⋯Former STREET 雜誌攝影師主理。反甜的原宿精神。歌舞伎町傍晚逛起來更有感覺。</div>
+      </div>
+
+    </div>
+
+    <div class="route-tip">
+      <strong>Day 3 路線建議：</strong>新宿三丁目駅 → 伊勢丹（多品牌集中：靴下屋、Moussy、Issey Miyake）→ ルミネエスト B2F（<strong>Goldy + SORIN 同層！</strong>）→ ルミネ 2 2F（<strong>ATTISESSION／Foundry Mews</strong>）→ NEWoMan 新宿 → Aiam → Loft → 傍晚：The Four Eyed（歌舞伎町）。
+    </div>
+  </div>
+
+  <!-- ===== Summary Table ===== -->
+  <div class="district">
+    <div class="district-header">
+      <div class="district-day" style="background:#3D3D3D">地圖</div>
+      <div class="district-title">各區域概覽</div>
+    </div>
+    <div class="district-divider"></div>
+
+    <table class="summary-table">
+      <thead>
+        <tr>
+          <th>地區</th>
+          <th>包含店舖</th>
+          <th>貼心提示</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>原宿（神宮前）</td>
+          <td>Laforet 原宿（Sheep 1F + GR8/AFB 2.5F + miffy）、BEAMS 一條街、@cosme、Converse Tokyo、Kinetics、The North Face×6、Kiko Kostadinov、Common Gull Products、Kindal 原宿、Shury Tokyo 古著、CONZ WOMENS（kotohayokozawa）、Yubune（Harakado）、RetaW</td>
+          <td>明治通り + Cat Street 步行可解決大半；Laforet 作為 Day 1 第一站效率最高</td>
+        </tr>
+        <tr>
+          <td>表參道 / 南青山</td>
+          <td>Studious Tokyo 旗艦、Issey Miyake me、Maison Special、PERVERZE</td>
+          <td>表參道駅 A4/A5 出口步行 5-10 分鐘可串聯</td>
+        </tr>
+        <tr>
+          <td>澀谷 / 代官山 / 恵比寿</td>
+          <td>PARCO（PERVERZE 3F / Issey Miyake Shibuya）、Kindal 澀谷、Sholayered 旗艦</td>
+          <td>PARCO 内可一次解決多個品牌</td>
+        </tr>
+        <tr>
+          <td>新宿</td>
+          <td>伊勢丹（靴下屋、Moussy 等）、Aiam、NEWoMan、Loft、Goldy、The Four Eyed</td>
+          <td>新宿三丁目站為核心，傍晚連同歌舞伎町 The Four Eyed</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+</div>
+
+<footer>Betty の東京逛街清單 · 35 shops · 調查截至 2025-2026 · 開幕/遷址請以官網為準</footer>
+
+<script>
+  function toggleVisit(card) {
+    card.classList.toggle('visited');
+    updateProgress();
+  }
+
+  function updateProgress() {
+    const total = document.querySelectorAll('.shop-card').length;
+    const visited = document.querySelectorAll('.shop-card.visited').length;
+    document.getElementById('visitedCount').textContent = visited;
+    document.getElementById('visitedPct').textContent = Math.round(visited/total*100) + '%';
+    document.getElementById('visitedFill').style.width = (visited/total*100) + '%';
+  }
+
+  updateProgress();
+</script>
+</body>
+</html>
